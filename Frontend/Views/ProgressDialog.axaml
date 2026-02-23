@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Frontend.Views.ProgressDialog"
+        Title="Processing..."
+        SizeToContent="WidthAndHeight"
+        SystemDecorations="BorderOnly"
+        WindowStartupLocation="CenterOwner"
+        Topmost="True"
+        CanResize="False">
+    <Border BorderBrush="#007ACC" BorderThickness="1" Background="White" Padding="20">
+        <StackPanel Spacing="15" Width="300">
+            <TextBlock x:Name="MessageText"
+                       Text="Please wait..."
+                       HorizontalAlignment="Center"
+                       FontWeight="SemiBold"/>
+            <ProgressBar IsIndeterminate="True" Height="20"/>
+        </StackPanel>
+    </Border>
+</Window>

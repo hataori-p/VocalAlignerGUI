@@ -1,0 +1,150 @@
+# Romaji to REX phoneme map
+# Format: romaji=phonemes (space separated)
+# Vowels
+a=a
+i=i
+u=u
+e=e
+o=o
+# N (syllabic nasal)
+n=N
+# K row
+ka=k a
+ki=k i
+ku=k u
+ke=k e
+ko=k o
+# S row
+sa=s a
+shi=sh i
+si=sh i
+su=s u
+se=s e
+so=s o
+# T row
+ta=t a
+chi=ch i
+ti=ch i
+tsu=ts u
+tu=ts u
+te=t e
+to=t o
+# N row
+na=n a
+ni=n i
+nu=n u
+ne=n e
+no=n o
+# H row
+ha=h a
+hi=h i
+fu=f u
+hu=f u
+he=h e
+ho=h o
+# M row
+ma=m a
+mi=m i
+mu=m u
+me=m e
+mo=m o
+# Y row
+ya=y a
+yu=y u
+yo=y o
+# R row
+ra=r a
+ri=r i
+ru=r u
+re=r e
+ro=r o
+# W row
+wa=w a
+wi=w i
+we=w e
+wo=w o
+# Voiced K row
+ga=g a
+gi=g i
+gu=g u
+ge=g e
+go=g o
+# Voiced S row
+za=z a
+ji=j i
+zi=j i
+zu=z u
+ze=z e
+zo=z o
+# Voiced T row
+da=d a
+di=d i
+du=d u
+de=d e
+do=d o
+# Voiced H row
+ba=b a
+bi=b i
+bu=b u
+be=b e
+bo=b o
+# P row
+pa=p a
+pi=p i
+pu=p u
+pe=p e
+po=p o
+# Yoon (contracted sounds)
+kya=ky a
+kyu=ky u
+kyo=ky o
+sha=sh a
+shu=sh u
+sho=sh o
+sha=sh a
+cha=ch a
+chu=ch u
+cho=ch o
+nya=ny a
+nyu=ny u
+nyo=ny o
+hya=hy a
+hyu=hy u
+hyo=hy o
+mya=my a
+myu=my u
+myo=my o
+rya=ry a
+ryu=ry u
+ryo=ry o
+gya=gy a
+gyu=gy u
+gyo=gy o
+ja=j a
+ju=j u
+jo=j o
+bya=by a
+byu=by u
+byo=by o
+pya=py a
+pyu=py u
+pyo=py o
+# Extra
+jya=j a
+jyu=j u
+jyo=j o
+tya=ch a
+tyu=ch u
+tyo=ch o
+dya=dy a
+dyu=dy u
+dyo=dy o
+fa=f a
+fi=f i
+fe=f e
+fo=f o
+# Special tokens
+_=_
+pau=pau
+sil=sil
+SP=SP

@@ -1,0 +1,273 @@
+# Kana to REX phoneme map
+# Format: kana=phonemes (space separated)
+# Basic vowels
+あ=a
+い=i
+う=u
+え=e
+お=o
+# K row
+か=k a
+き=k i
+く=k u
+け=k e
+こ=k o
+# S row
+さ=s a
+し=sh i
+す=s u
+せ=s e
+そ=s o
+# T row
+た=t a
+ち=ch i
+つ=ts u
+て=t e
+と=t o
+# N row
+な=n a
+に=n i
+ぬ=n u
+ね=n e
+の=n o
+# H row
+は=h a
+ひ=h i
+ふ=f u
+へ=h e
+ほ=h o
+# M row
+ま=m a
+み=m i
+む=m u
+め=m e
+も=m o
+# Y row
+や=y a
+ゆ=y u
+よ=y o
+# R row
+ら=r a
+り=r i
+る=r u
+れ=r e
+ろ=r o
+# W row
+わ=w a
+を=o
+ん=N
+# Voiced K row
+が=g a
+ぎ=g i
+ぐ=g u
+げ=g e
+ご=g o
+# Voiced S row
+ざ=z a
+じ=j i
+ず=z u
+ぜ=z e
+ぞ=z o
+# Voiced T row
+だ=d a
+ぢ=j i
+づ=z u
+で=d e
+ど=d o
+# Voiced H row
+ば=b a
+び=b i
+ぶ=b u
+べ=b e
+ぼ=b o
+# P row
+ぱ=p a
+ぴ=p i
+ぷ=p u
+ぺ=p e
+ぽ=p o
+# Yoon (contracted sounds) - must come before single kana in lookup
+きゃ=ky a
+きゅ=ky u
+きょ=ky o
+しゃ=sh a
+しゅ=sh u
+しょ=sh o
+ちゃ=ch a
+ちゅ=ch u
+ちょ=ch o
+にゃ=ny a
+にゅ=ny u
+にょ=ny o
+ひゃ=hy a
+ひゅ=hy u
+ひょ=hy o
+みゃ=my a
+みゅ=my u
+みょ=my o
+りゃ=ry a
+りゅ=ry u
+りょ=ry o
+ぎゃ=gy a
+ぎゅ=gy u
+ぎょ=gy o
+じゃ=j a
+じゅ=j u
+じょ=j o
+びゃ=by a
+びゅ=by u
+びょ=by o
+ぴゃ=py a
+ぴゅ=py u
+ぴょ=py o
+# Extended kana
+ふぁ=f a
+ふぃ=f i
+ふぇ=f e
+ふぉ=f o
+てぃ=t i
+でぃ=d i
+とぅ=t u
+どぅ=d u
+うぃ=w i
+うぇ=w e
+うぉ=w o
+ゔぁ=v a
+ゔぃ=v i
+ゔ=v u
+ゔぇ=v e
+ゔぉ=v o
+つぁ=ts a
+つぃ=ts i
+つぇ=ts e
+つぉ=ts o
+ちぇ=ch e
+しぇ=sh e
+じぇ=j e
+てゅ=ty u
+でゅ=dy u
+# Katakana basic vowels
+ア=a
+イ=i
+ウ=u
+エ=e
+オ=o
+# Katakana K row
+カ=k a
+キ=k i
+ク=k u
+ケ=k e
+コ=k o
+# Katakana S row
+サ=s a
+シ=sh i
+ス=s u
+セ=s e
+ソ=s o
+# Katakana T row
+タ=t a
+チ=ch i
+ツ=ts u
+テ=t e
+ト=t o
+# Katakana N row
+ナ=n a
+ニ=n i
+ヌ=n u
+ネ=n e
+ノ=n o
+# Katakana H row
+ハ=h a
+ヒ=h i
+フ=f u
+ヘ=h e
+ホ=h o
+# Katakana M row
+マ=m a
+ミ=m i
+ム=m u
+メ=m e
+モ=m o
+# Katakana Y row
+ヤ=y a
+ユ=y u
+ヨ=y o
+# Katakana R row
+ラ=r a
+リ=r i
+ル=r u
+レ=r e
+ロ=r o
+# Katakana W row
+ワ=w a
+ヲ=o
+ン=N
+# Katakana voiced K row
+ガ=g a
+ギ=g i
+グ=g u
+ゲ=g e
+ゴ=g o
+# Katakana voiced S row
+ザ=z a
+ジ=j i
+ズ=z u
+ゼ=z e
+ゾ=z o
+# Katakana voiced T row
+ダ=d a
+ヂ=j i
+ヅ=z u
+デ=d e
+ド=d o
+# Katakana voiced H row
+バ=b a
+ビ=b i
+ブ=b u
+ベ=b e
+ボ=b o
+# Katakana P row
+パ=p a
+ピ=p i
+プ=p u
+ペ=p e
+ポ=p o
+# Katakana Yoon
+キャ=ky a
+キュ=ky u
+キョ=ky o
+シャ=sh a
+シュ=sh u
+ショ=sh o
+チャ=ch a
+チュ=ch u
+チョ=ch o
+ニャ=ny a
+ニュ=ny u
+ニョ=ny o
+ヒャ=hy a
+ヒュ=hy u
+ヒョ=hy o
+ミャ=my a
+ミュ=my u
+ミョ=my o
+リャ=ry a
+リュ=ry u
+リョ=ry o
+ギャ=gy a
+ギュ=gy u
+ギョ=gy o
+ジャ=j a
+ジュ=j u
+ジョ=j o
+ビャ=by a
+ビュ=by u
+ビョ=by o
+ピャ=py a
+ピュ=py u
+ピョ=py o
+# Special tokens
+_=_
+pau=pau
+sil=sil
+SP=SP

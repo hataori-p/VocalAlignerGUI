@@ -1,0 +1,28 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Frontend.ViewModels"
+        x:Class="Frontend.Views.TierSelectionDialog"
+        x:DataType="vm:TierSelectionViewModel"
+        Title="Select TextGrid Tier"
+        Width="400"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Spacing="10" Margin="10">
+        <TextBlock Text="Select a tier to load:"
+                   FontWeight="Bold"/>
+        <Border BorderBrush="Gray" BorderThickness="1" Background="White" MaxHeight="300">
+            <ListBox ItemsSource="{Binding TierNames}"
+                     SelectedItem="{Binding SelectedTierName}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" Padding="8,4"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button Content="Cancel" IsCancel="True" Click="OnCancel" Width="75"/>
+            <Button Content="OK" IsDefault="True" Click="OnConfirm" Width="75"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

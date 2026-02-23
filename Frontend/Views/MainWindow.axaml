@@ -1,0 +1,181 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Frontend.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="using:Frontend.Controls"
+        xmlns:converters="using:Frontend.Converters"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Frontend.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="{Binding WindowTitle}"
+        x:Name="RootWindow">
+
+    <Window.KeyBindings>
+        <!-- REMOVED: Space and Z bindings to prevent conflict with Search input -->
+        <!-- Logic moved to MainWindow.axaml.cs OnKeyDown -->
+        
+        <KeyBinding Command="{Binding StopOrClearCommand}" Gesture="Escape"/>
+        <KeyBinding Command="{Binding ShowSearchCommand}" Gesture="Ctrl+F"/>
+        <KeyBinding Command="{Binding FindNextCommand}" Gesture="F3"/>
+        <KeyBinding Command="{Binding FindPreviousCommand}" Gesture="Shift+F3"/>
+        <KeyBinding Command="{Binding PageForwardCommand}" Gesture="PageDown"/>
+        <KeyBinding Command="{Binding PageBackCommand}" Gesture="PageUp"/>
+        <KeyBinding Command="{Binding GoToStartCommand}" Gesture="Home"/>
+        <KeyBinding Command="{Binding GoToEndCommand}" Gesture="End"/>
+        <KeyBinding Command="{Binding CenterCursorCommand}" Gesture="C"/>
+        <KeyBinding Command="{Binding PlayVisibleCommand}" Gesture="Shift+Space"/>
+        <KeyBinding Command="{Binding MoveCursorNextCommand}" Gesture="Ctrl+Right"/>
+        <KeyBinding Command="{Binding MoveCursorPreviousCommand}" Gesture="Ctrl+Left"/>
+        <KeyBinding Command="{Binding ZoomInCommand}" Gesture="Up"/>
+        <KeyBinding Command="{Binding ZoomOutCommand}" Gesture="Down"/>
+        <KeyBinding Command="{Binding InsertSilenceToSelectionCommand}" Gesture="Ctrl+Shift+I"/>
+    </Window.KeyBindings>
+
+    <DockPanel>
+        <!-- Main Menu -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open Audio..." Click="OnLoadAudioClick"/>
+                <MenuItem Header="_Import Text..." Click="OnImportTextClick"/>
+                <MenuItem Header="Load _TextGrid..." Click="OnLoadTextGridClick"/>
+                <MenuItem Header="Load TextGrid _Tier..." Click="OnLoadTextGridTierClick"/>
+                <Separator/>
+                <MenuItem Header="_Save TextGrid" Command="{Binding SaveTextGridCommand}" HotKey="Ctrl+S"/>
+                <MenuItem Header="Save TextGrid _As..." Click="OnSaveTextGridAsClick"/>
+                <Separator/>
+                <MenuItem Header="_Clear TextGrid" Command="{Binding ClearGridCommand}"/>
+                <Separator/>
+                <MenuItem Header="_Exit" Click="OnExitClick"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="Insert _Silence to Selection"
+                          Command="{Binding InsertSilenceToSelectionCommand}"
+                          IsEnabled="{Binding CanInsertSilenceToSelection}" />
+                <MenuItem Header="_Fix Silences" Command="{Binding FixSilencesCommand}" />
+                <MenuItem Header="_Lock All Boundaries" Command="{Binding LockAllBoundariesCommand}"/>
+                <MenuItem Header="Lock _Spaces" Command="{Binding LockSpacesCommand}"/>
+                <MenuItem Header="_Unlock All Boundaries" Command="{Binding UnlockAllBoundariesCommand}"/>
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="_Zoom to Selection / Reset" Command="{Binding ZoomToSelectionCommand}" HotKey="Z"/>
+            </MenuItem>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="Convert Selection to IPA"
+                          Classes="PhonemizerParent"
+                          ItemsSource="{Binding AvailablePhonemizers}">
+                    <MenuItem.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" />
+                        </DataTemplate>
+                    </MenuItem.ItemTemplate>
+                    <MenuItem.Styles>
+                        <Style Selector="MenuItem:not(.PhonemizerParent)">
+                            <Setter Property="Command" Value="{Binding $parent[Window].DataContext.ConvertSelectionCommand}" />
+                            <Setter Property="CommandParameter" Value="{Binding}" />
+                        </Style>
+                    </MenuItem.Styles>
+                </MenuItem>
+                <MenuItem Header="Validate Grid Phonemes" Command="{Binding ValidateGridCommand}" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="Toggle File Logging"
+                          Command="{Binding ToggleFileLoggingCommand}">
+                    <MenuItem.Icon>
+                        <CheckBox IsChecked="{Binding IsFileLoggingActive, Mode=OneWay}"
+                                  IsHitTestVisible="False"
+                                  Focusable="False"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Open Log File Location"
+                          Click="OnOpenLogFolderClick"
+                          IsEnabled="{Binding IsFileLoggingActive}"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid RowDefinitions="Auto,40,*,24,100,Auto" ColumnDefinitions="*" Margin="10">
+            <!-- Row 0: Header -->
+            <StackPanel Grid.Row="0" Spacing="10" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,5">
+                <ComboBox ItemsSource="{Binding AvailableModels}"
+                          SelectedItem="{Binding SelectedModel}"
+                          MinWidth="180"
+                          Focusable="False">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DisplayName,
+                                FallbackValue='— Not Assigned —',
+                                TargetNullValue='— Not Assigned —'}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <Button Click="OnLoadAudioClick" Content="Load Audio" Focusable="False"/>
+
+                <Button Click="OnRealignClick" Content="Realign" Background="#E1F5FE" BorderBrush="#0288D1" BorderThickness="1" Focusable="False"
+                        IsEnabled="{Binding SelectedModel, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                <!-- Run Recognition button removed; recognition now runs automatically -->
+                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Row 1: Mini-Map (Navigation) -->
+            <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" Margin="0,0,0,5" Background="#F5F5F5">
+                <controls:NavigationControl 
+                    Timeline="{Binding Timeline}"
+                    PlayerService="{Binding AudioPlayer}" />
+            </Border>
+
+            <!-- Row 2: Audio Group (Waveform + Spectrogram) -->
+            <Border Grid.Row="2" BorderBrush="Black" BorderThickness="1" Margin="0,0,0,5">
+                <Grid RowDefinitions="80,*" PointerPressed="OnAudioTransportPointerPressed" Background="Transparent">
+                    <controls:WaveformControl Grid.Row="0"
+                                              Timeline="{Binding Timeline}"
+                                              PlayerService="{Binding AudioPlayer}" />
+                    
+                    <controls:SpectrogramControl Grid.Row="1"
+                                                 Timeline="{Binding Timeline}"
+                                                 PlayerService="{Binding AudioPlayer}" />
+                </Grid>
+            </Border>
+
+            <!-- Row 3: Recognition Lane -->
+            <Border Grid.Row="3" BorderBrush="Black" BorderThickness="1" Margin="0,0,0,5" Background="#FFFFFF">
+                <controls:RecognitionControl
+                    Timeline="{Binding Timeline}"
+                    Phonemes="{Binding RecognitionPhonemes}" />
+            </Border>
+
+            <!-- Row 4: Tier -->
+            <Border Grid.Row="4" BorderBrush="Black" BorderThickness="1" Margin="0,0,0,5" Background="#F0F0F0">
+                <controls:TierControl x:Name="MainTierControl"
+                                      Timeline="{Binding Timeline}" 
+                                      DataSource="{Binding MainTier}" 
+                                      Height="100"
+                                      ClipToBounds="True"/>
+            </Border>
+            
+            <!-- Overlay (Covers Audio, Recognition, and Tier) -->
+            <controls:CursorOverlay Grid.Row="2" Grid.RowSpan="3"
+                                    Timeline="{Binding Timeline}"
+                                    DataSource="{Binding MainTier}"
+                                    TierHeight="{Binding Height, ElementName=MainTierControl}"
+                                    TierControlElement="{Binding ElementName=MainTierControl}" />
+
+            <!-- Search Overlay: Floating Top-Right over the entire view -->
+            <!-- Spanning all rows ensures it is never clipped by a short row height -->
+            <controls:FindOverlay Grid.Row="0"
+                                  Grid.RowSpan="6"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="0,0,10,0"
+                                  IsVisible="{Binding IsSearchVisible}"/>
+
+            <!-- Row 5: Footer -->
+            <Grid Grid.Row="5" ColumnDefinitions="*" Margin="0,5,0,0">
+                <TextBlock Text="{Binding Timeline.TotalDuration, StringFormat='Total Duration: {0:F2}s'}"
+                           HorizontalAlignment="Right"/>
+            </Grid>
+        </Grid>
+    </DockPanel>
+
+</Window>

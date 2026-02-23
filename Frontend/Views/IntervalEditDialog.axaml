@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Frontend.Controls"
+        x:Class="Frontend.Views.IntervalEditDialog"
+        Title="Edit Interval"
+        SizeToContent="WidthAndHeight"
+        Width="300"
+        SystemDecorations="BorderOnly"
+        WindowStartupLocation="Manual"
+        ShowInTaskbar="False"
+        CanResize="False">
+
+    <Border BorderBrush="#007ACC" BorderThickness="1" Background="White" Padding="8">
+        <StackPanel Spacing="8">
+            
+            <!-- Row 1: The Smart Editor -->
+            <TextBox x:Name="InputBox" 
+                     Width="280" 
+                     FontSize="14"
+                     TextWrapping="Wrap" 
+                     AcceptsReturn="False" />
+            
+            <!-- Row 2: Toolbar -->
+            <Grid ColumnDefinitions="*, Auto">
+                <!-- Hint Text -->
+                <TextBlock x:Name="HintText" 
+                           Text="Enter to Save" 
+                           FontSize="11" 
+                           Foreground="Gray" 
+                           VerticalAlignment="Center" 
+                           Margin="2,0,0,0"/>
+                
+                <!-- Tools -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
+                    <!-- Save Button -->
+                    <Button Content="Save" 
+                            Click="OnSaveClick" 
+                            FontSize="11" 
+                            Height="24" 
+                            Padding="10,0"
+                            VerticalContentAlignment="Center"
+                            Background="#F0F0F0"/>
+                    
+                    <!-- IPA Toggle -->
+                    <ToggleButton x:Name="IpaToggle"
+                                  Content="IPA" 
+                                  FontSize="11" 
+                                  Height="24"
+                                  Padding="10,0"
+                                  VerticalContentAlignment="Center"
+                                  IsChecked="False"
+                                  Focusable="False"/>
+                </StackPanel>
+            </Grid>
+            
+            <!-- Row 3: IPA Drawer (Collapsible) -->
+            <controls:IpaPickerControl x:Name="IpaPicker" IsVisible="False" />
+            
+        </StackPanel>
+    </Border>
+</Window>

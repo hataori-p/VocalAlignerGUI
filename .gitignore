@@ -1,0 +1,12 @@
+.aider*
+WORK.md
+__pycache__/
+bin*
+obj*
+/data/
+.airi/
+Frontend/resources/models/
+context
+*.bin
+Frontend/smart_align_log.txt
+utils/sakuranbo16k.wav

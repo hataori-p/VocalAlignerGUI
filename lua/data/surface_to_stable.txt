@@ -1,0 +1,72 @@
+# Surface phoneme to Stable IPA mapping
+# Format: surface=stable_ipa
+# Source: allosaurus_rex/phonemizer/implementations/japanese/tables.py
+# Note: 'j' is NOT included here - handled by context in transcoder
+# Identity mappings for stable IPA set
+a=a
+i=i
+ɯ=ɯ
+e=e
+o=o
+ɴ=ɴ
+k=k
+ɡ=ɡ
+s=s
+z=z
+t=t
+d=d
+n=n
+h=h
+ɸ=ɸ
+b=b
+p=p
+m=m
+j=j
+ɾ=ɾ
+w=w
+v=v
+ʔ=ʔ
+br=br
+ɕ=ɕ
+tɕ=tɕ
+ts=ts
+dʑ=dʑ
+kʲ=kʲ
+ɡʲ=ɡʲ
+ç=ç
+bʲ=bʲ
+pʲ=pʲ
+mʲ=mʲ
+nʲ=nʲ
+ɾʲ=ɾʲ
+# Romaji surface forms -> stable IPA
+u=ɯ
+N=ɴ
+g=ɡ
+f=ɸ
+y=j
+r=ɾ
+l=ɾ
+sh=ɕ
+ch=tɕ
+dj=dʑ
+ky=kʲ
+gy=ɡʲ
+hy=ç
+by=bʲ
+py=pʲ
+my=mʲ
+ny=nʲ
+ry=ɾʲ
+# Special symbols
+sil=sil
+_=sil
+sp=sil
+SP=sil
+-=-
+# Glottal stop variants
+'=ʔ
+q=ʔ
+# Silence/boundary variants
+sp=sil
+pau=sil

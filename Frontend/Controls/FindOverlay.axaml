@@ -1,0 +1,93 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Frontend.ViewModels"
+             x:Class="Frontend.Controls.FindOverlay"
+             x:DataType="vm:MainWindowViewModel"
+             Width="340">
+    
+    <UserControl.Styles>
+        <!-- Force override of the Focus border color -->
+        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="#808080"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="#A0A0A0"/>
+        </Style>
+    </UserControl.Styles>
+
+    <!-- Main Card Container -->
+    <!-- Removed fixed Height to allow auto-sizing -->
+    <Border Background="#F9F9F9"
+            BorderBrush="#D0D0D0"
+            BorderThickness="1"
+            CornerRadius="6"
+            Padding="8"
+            BoxShadow="0 4 12 0 #20000000">
+        
+        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto,Auto,Auto">
+            
+            <!-- Row 0: Search Input & Buttons -->
+            <TextBox Grid.Row="0" Grid.Column="0"
+                     Name="SearchBox"
+                     Watermark="Find..."
+                     VerticalAlignment="Center"
+                     Margin="0,0,8,0"
+                     FontSize="13"
+                     BorderBrush="#C0C0C0"
+                     BorderThickness="1"
+                     CornerRadius="3"
+                     MinHeight="28"
+                     Padding="6,4"/>
+            
+            <Button Grid.Row="0" Grid.Column="1"
+                    Content="&lt;"
+                    Command="{Binding FindPreviousCommand}"
+                    Click="RefocusSearchBox"
+                    Focusable="False"
+                    Width="28" Height="28"
+                    VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                    Padding="0" Margin="0,0,4,0"/>
+            
+            <Button Grid.Row="0" Grid.Column="2"
+                    Content="&gt;"
+                    Command="{Binding FindNextCommand}"
+                    Click="RefocusSearchBox"
+                    Focusable="False"
+                    Width="28" Height="28"
+                    VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                    Padding="0" Margin="0,0,8,0"/>
+            
+            <!-- Close Button (Subtle) -->
+            <Button Grid.Row="0" Grid.Column="3"
+                    Content="✕"
+                    Command="{Binding CloseSearchCommand}"
+                    Click="RefocusSearchBox"
+                    Focusable="False"
+                    Width="24" Height="28"
+                    Background="Transparent" 
+                    BorderThickness="0"
+                    VerticalContentAlignment="Center" 
+                    HorizontalContentAlignment="Center"
+                    Padding="0"
+                    Foreground="#888888"/>
+
+            <!-- Row 1: Options -->
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" 
+                        Orientation="Horizontal" Spacing="15" Margin="2,8,0,0">
+                <CheckBox Content="Exact match" 
+                          IsChecked="{Binding SearchExactMatch}" 
+                          Click="RefocusSearchBox"
+                          GotFocus="RefocusSearchBox"
+                          FontSize="12" 
+                          Padding="4,0,0,0"/>
+                <CheckBox Content="Case sensitive" 
+                          IsChecked="{Binding SearchCaseSensitive}" 
+                          Click="RefocusSearchBox"
+                          GotFocus="RefocusSearchBox"
+                          FontSize="12" 
+                          Padding="4,0,0,0"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
