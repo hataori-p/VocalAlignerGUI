@@ -35,7 +35,7 @@ VocalAlignerGUI includes a programmable scripting engine (via MoonSharp) that al
 ## Installation & Setup
 
 ### For Users (Release Version)
-1. Download the latest `v0.1.1-alpha` `.zip` from the Releases page.
+1. Download the latest `v0.1.1-alpha` release: [`VocalAligner_v0.1.1-alpha_Windows.zip`](https://github.com/hataori-p/VocalAlignerGUI/releases/download/v0.1.1-alpha/VocalAligner_v0.1.1-alpha_Windows.zip).
 2. Extract the folder to your desired location.
 3. Ensure the required acoustic models (`.onnx` and `.yaml` files) are placed in the `Frontend/resources/models/` directory.
 4. Run the `VocalAlignerGUI` executable.
