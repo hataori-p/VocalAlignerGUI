@@ -21,6 +21,17 @@ VocalAlignerGUI includes a programmable scripting engine (via MoonSharp) that al
 *   **Get Started:** See the [LUA_GUIDE.md](docs/LUA_GUIDE.md) in the `docs/` folder for a full prompt template you can give to an AI assistant (like Claude or ChatGPT) to generate a custom phonemizer for your specific language.
 *   **Contributions:** If you create a high-quality phonemizer for a language not currently supported, please consider submitting a Pull Request!
 
+### ✨ Support & Community
+
+* **Technical Assistant (AI Chatbot):** Need help with VocalAlignerGUI?  
+  → Try the official [VocalAlignerGUI Support Chat](https://vocal-aligner-chat.hataori.workers.dev/).  
+  This lightweight web interface provides fast, context-aware answers about the app, phonetics, alignment workflows, and troubleshooting. It uses Cloudflare Turnstile for security and OpenRouter for inference — **no messages are stored**.
+
+* **Report Issues & Feature Requests:**  
+  → Open an issue on [GitHub Issues](https://github.com/hataori-p/VocalAlignerGUI/issues). Include logs (enable via *Help > Toggle File Logging*).
+
+* **Privacy Note:** Messages are sent to OpenRouter (via Cloudflare Workers) for processing. Do **not** include private, sensitive, or copyrighted material.
+
 ## Installation & Setup
 
 ### For Users (Release Version)
