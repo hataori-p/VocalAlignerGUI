@@ -13,6 +13,11 @@ VocalAlignerGUI is built natively in C# (Avalonia) and uses the ONNX runtime for
 *   **Lua Scripting Engine:** Built-in Lua support (via MoonSharp) handles G2P phonemization (e.g., Japanese Romaji/Kana to IPA) without needing to recompile the app.
 *   **Optimized Visualization:** Local C# DSP implementation renders the spectrogram and waveform cleanly, even for longer audio files.
 
+<video controls width="700">
+  <source src="https://github.com/hataori-p/VocalAlignerGUI/releases/download/v0.1.1-alpha/vocaliner_intro.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 ## Experimental: Custom Phonemizers (Lua)
 
 VocalAlignerGUI includes a programmable scripting engine (via MoonSharp) that allows advanced users to add support for new languages or custom phonetic dictionaries without recompiling the application.
