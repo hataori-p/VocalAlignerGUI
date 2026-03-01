@@ -47,6 +47,15 @@ public class AppState
 
     [JsonPropertyName("playheadPosition")]
     public double PlayheadPosition { get; set; }
+
+    [JsonPropertyName("isOskVisible")]
+    public bool IsOskVisible { get; set; }
+
+    [JsonPropertyName("oskX")]
+    public double OskX { get; set; }
+
+    [JsonPropertyName("oskY")]
+    public double OskY { get; set; }
 }
 
 public static class AppStateService

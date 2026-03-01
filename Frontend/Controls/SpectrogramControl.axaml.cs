@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using static Avalonia.Input.Gestures;
 using Avalonia.Media.Imaging;
 using Frontend.Models;
 using Frontend.Services;
@@ -346,6 +347,9 @@ public partial class SpectrogramControl : UserControl
         var pt = e.GetPosition(this);
         double t = Timeline.XToTime(pt.X);
 
+        var vm = DataContext as Frontend.ViewModels.MainWindowViewModel;
+        bool isShift = e.KeyModifiers.HasFlag(KeyModifiers.Shift) || (vm?.IsVirtualShiftActive == true);
+
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
             _isDragging = true;
@@ -353,7 +357,7 @@ public partial class SpectrogramControl : UserControl
             _clickStartX = pt.X; // Start drag detection
             e.Pointer.Capture(this);
 
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            if (isShift)
             {
                 _selectionStartAnchor = t;
                 Timeline.SetSelection(t, t);
@@ -369,15 +373,16 @@ public partial class SpectrogramControl : UserControl
             if (Timeline == null) return;
             double timeClicked = Timeline.XToTime(pt.X);
 
-            if (DataContext is Frontend.ViewModels.MainWindowViewModel vm)
+            if (vm != null)
             {
-                double endTime = e.KeyModifiers.HasFlag(KeyModifiers.Shift)
+                double endTime = isShift
                     ? -1
                     : Timeline.VisibleEndTime;
 
                 vm.PlayRange(timeClicked, endTime);
             }
             e.Handled = true;
+            vm?.ConsumeOneShotModifiers();
         }
     }
 
@@ -387,7 +392,10 @@ public partial class SpectrogramControl : UserControl
         var pt = e.GetPosition(this);
         double t = Timeline.XToTime(pt.X);
 
-        if (_selectionStartAnchor >= 0)
+        var vm = DataContext as Frontend.ViewModels.MainWindowViewModel;
+        bool isShift = e.KeyModifiers.HasFlag(KeyModifiers.Shift) || (vm?.IsVirtualShiftActive == true);
+
+        if (_selectionStartAnchor >= 0 && isShift)
         {
             Timeline.SetSelection(_selectionStartAnchor, t);
         }
@@ -414,15 +422,20 @@ public partial class SpectrogramControl : UserControl
             Timeline!.IsInteracting = false;
             e.Pointer.Capture(null);
 
+            var vm = DataContext as Frontend.ViewModels.MainWindowViewModel;
+            bool isShift = e.KeyModifiers.HasFlag(KeyModifiers.Shift) || (vm?.IsVirtualShiftActive == true);
+
             // Handle Click (Seek)
             if (Math.Abs(e.GetPosition(this).X - _clickStartX) < 3 && _selectionStartAnchor < 0)
             {
                 Timeline.ClearSelection();
                 // Safe invoke seek command via ViewModel binding or direct property
-                if (DataContext is Frontend.ViewModels.MainWindowViewModel vm) 
+                if (vm != null) 
                     vm.SeekToCommand.Execute(Timeline.XToTime(e.GetPosition(this).X));
             }
             
+            vm?.ConsumeOneShotModifiers();
+
             InvalidateVisual(); // Force high-quality render
             e.Handled = true;
         }

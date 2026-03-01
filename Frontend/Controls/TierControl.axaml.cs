@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
+using static Avalonia.Input.Gestures;
 using Avalonia.Media;
 using Frontend.Models;
 using Frontend.ViewModels;
@@ -526,9 +527,9 @@ public class TierControl : Control
                 interval.Text = dialog.ResultText;
 
                 // Re-run the existing validation logic from the ViewModel
-                if (DataContext is MainWindowViewModel vm)
+                if (DataContext is MainWindowViewModel vmValidate)
                 {
-                    vm.ValidateGridCommand.Execute(null);
+                    vmValidate.ValidateGridCommand.Execute(null);
                 }
 
                 InvalidateVisual(); // Redraw with new text and updated IsValid color
@@ -550,6 +551,11 @@ public class TierControl : Control
 
         double timeClicked = timeline.XToTime(point.X);
 
+        var vm = DataContext as MainWindowViewModel;
+        bool isCtrl = e.KeyModifiers.HasFlag(KeyModifiers.Control) || (vm?.IsVirtualCtrlActive == true);
+        bool isAlt = e.KeyModifiers.HasFlag(KeyModifiers.Alt) || (vm?.IsVirtualAltActive == true);
+        bool isShift = e.KeyModifiers.HasFlag(KeyModifiers.Shift) || (vm?.IsVirtualShiftActive == true);
+
         // ---------------------------------------------------------
         // 1. Handle RIGHT CLICK (Context Menu / Play Interval / Delete Boundary)
         // ---------------------------------------------------------
@@ -558,7 +564,6 @@ public class TierControl : Control
             e.Handled = true;
             // Ensure no stale menu remains attached between interactions.
             ContextMenu = null;
-            bool isCtrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
 
             // A. Priority: Check for Boundary Hit (Quick Delete)
             // Re-check hover logic to ensure we are strictly on the line
@@ -571,6 +576,7 @@ public class TierControl : Control
                 {
                     InvalidateVisual();
                 }
+                vm?.ConsumeOneShotModifiers();
                 return;
             }
 
@@ -587,19 +593,20 @@ public class TierControl : Control
                 else
                 {
                     // ACTION: Play Interval (Right Click on Interval)
-                    if (DataContext is MainWindowViewModel vm)
+                    if (DataContext is MainWindowViewModel vmPlay)
                     {
-                        vm.PlayRange(interval.Start.Time, interval.End.Time);
+                        vmPlay.PlayRange(interval.Start.Time, interval.End.Time);
                     }
                 }
             }
+            vm?.ConsumeOneShotModifiers();
             return;
         }
 
         // ---------------------------------------------------------
         // 2. Handle Interval Selection (Shift + Left Click)
         // ---------------------------------------------------------
-        if (props.IsLeftButtonPressed && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        if (props.IsLeftButtonPressed && isShift)
         {
             var interval = dataSource.Intervals.FirstOrDefault(i => i.Start.Time <= timeClicked && i.End.Time > timeClicked);
 
@@ -625,7 +632,7 @@ public class TierControl : Control
         // ---------------------------------------------------------
         // 3. Handle SPLIT START (Ctrl + Left Click Down)
         // ---------------------------------------------------------
-        if (props.IsLeftButtonPressed && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        if (props.IsLeftButtonPressed && isCtrl)
         {
             if (_hoverBoundary == null)
             {
@@ -649,6 +656,7 @@ public class TierControl : Control
             _hoverBoundary.IsLocked = !_hoverBoundary.IsLocked;
             InvalidateVisual();
             e.Handled = true;
+            vm?.ConsumeOneShotModifiers();
             return;
         }
 
@@ -663,20 +671,22 @@ public class TierControl : Control
                 e.Handled = true;
                 ShowEditDialog(interval);
             }
+            vm?.ConsumeOneShotModifiers();
             return;
         }
 
         // ---------------------------------------------------------
         // 5. Handle Interval Click (Move Cursor)
         // ---------------------------------------------------------
-        if (props.IsLeftButtonPressed && _hoverBoundary == null && !e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        if (props.IsLeftButtonPressed && _hoverBoundary == null && !isCtrl)
         {
             var interval = dataSource.Intervals.FirstOrDefault(i => i.Start.Time <= timeClicked && i.End.Time > timeClicked);
-            if (interval != null && DataContext is MainWindowViewModel vm)
+            if (interval != null && DataContext is MainWindowViewModel vmSeek)
             {
                 timeline.ClearSelection();
-                vm.SeekToCommand.Execute(interval.Start.Time);
+                vmSeek.SeekToCommand.Execute(interval.Start.Time);
                 e.Handled = true;
+                vm?.ConsumeOneShotModifiers();
                 return;
             }
         }
@@ -704,7 +714,7 @@ public class TierControl : Control
                 return;
             }
 
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Alt))
+            if (isAlt)
             {
                 _isSmartDragging = false;
                 _smartDragLeftLimitIdx = -1;
@@ -790,6 +800,7 @@ public class TierControl : Control
                     ShowEditDialog(newInterval);
                 }
             }
+            if (DataContext is MainWindowViewModel vmSplit) vmSplit.ConsumeOneShotModifiers();
             return;
         }
 
@@ -800,17 +811,23 @@ public class TierControl : Control
             _selectionAnchorEnd = -1;
             e.Pointer.Capture(null);
             e.Handled = true;
+            if (DataContext is MainWindowViewModel vmSel) vmSel.ConsumeOneShotModifiers();
             return;
         }
 
         // --- FINISH DRAG ---
         if (_isDragging)
         {
+            if (DataContext is MainWindowViewModel vmRelease)
+            {
+                vmRelease.ConsumeOneShotModifiers();
+            }
+
             if (_isSmartDragging)
             {
-                if (DataContext is MainWindowViewModel vm)
+                if (DataContext is MainWindowViewModel vmDrag)
                 {
-                    if (vm.HasOnnxModel)
+                    if (vmDrag.HasOnnxModel)
                     {
                         // Existing async scoped realign — unchanged
                         int capturedLeft  = _smartDragLeftLimitIdx;
@@ -830,7 +847,7 @@ public class TierControl : Control
                                     await System.Threading.Tasks.Task.Delay(50);
                                 }
 
-                                await vm.RealignScopedAsync(capturedLeft, capturedRight);
+                                await vmDrag.RealignScopedAsync(capturedLeft, capturedRight);
                             }
                             catch (Exception ex)
                             {

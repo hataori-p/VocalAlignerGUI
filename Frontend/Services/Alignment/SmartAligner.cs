@@ -2,7 +2,6 @@ namespace Frontend.Services.Alignment;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -24,11 +23,6 @@ public class SmartAligner : IAligner
         _estimator = new SimpleDurationEstimator();
     }
 
-    private void Log(string message)
-    {
-        try { File.AppendAllText("smart_align_log.txt", $"{DateTime.Now:HH:mm:ss} [Aligner] {message}\n"); } catch { }
-    }
-
     private struct CutPointInfo
     {
         public double MidTime;
@@ -40,14 +34,11 @@ public class SmartAligner : IAligner
 
     public async Task<TextGrid> AlignAsync(string text, string audioPath)
     {
-        Log("Starting Smart Align...");
-        
         // 1. Run VAD (CPU intensive, run on thread)
         var segments = await Task.Run(() => _vadService.DetectSegments(audioPath));
 
         if (segments.Count == 0)
         {
-            Log("No VAD segments detected. Fallback to simple grid.");
             var grid = new TextGrid();
             grid.AddInterval(0, 10.0, text); // 10s default
             return grid;
@@ -92,8 +83,6 @@ public class SmartAligner : IAligner
             IsVirtual = true
         });
 
-        Log($"Constructed {cutInfos.Count} cut-points.");
-
         // NEW: Calculate accumulated speech duration at each cut point
         var accumulatedSpeechTime = new double[cutInfos.Count];
         accumulatedSpeechTime[0] = 0;
@@ -121,28 +110,17 @@ public class SmartAligner : IAligner
                             .Select(s => s.Trim())
                             .ToList();
 
-        Log($"Parsed {rawLines.Count} text phrases.");
-
         if (rawLines.Count == 0) return new TextGrid();
 
-        // Calculate Weights (Modified for Debugging)
+        // Calculate Weights
         var phraseWeights = new double[rawLines.Count];
-        Log("=== Text Weight Analysis ===");
         
         for (int i = 0; i < rawLines.Count; i++)
         {
-            double w = _estimator.EstimateWeight(rawLines[i]);
-            phraseWeights[i] = w;
-            
-            // Sanitize for log
-            string snippet = rawLines[i].Replace("\r", "").Replace("\n", " ").Trim();
-            if (snippet.Length > 60) snippet = snippet.Substring(0, 57) + "...";
-            
-            Log($"Phrase {i + 1:00}: \"{snippet}\" -> Weight: {w:F2}");
+            phraseWeights[i] = _estimator.EstimateWeight(rawLines[i]);
         }
         
         double totalWeight = phraseWeights.Sum();
-        Log($"=== Total Weight: {totalWeight:F2} ===");
         
         if (totalWeight <= 0) totalWeight = 1;
 
@@ -213,7 +191,6 @@ public class SmartAligner : IAligner
         // If the cost is infinite (impossible), allow backing off
         if (dp[n, bestEndIndex] == double.MaxValue)
         {
-            Log("DP at last index was impossible. Searching for nearest valid end.");
             for (int j = m - 1; j >= n; j--)
             {
                 if (dp[n, j] < double.MaxValue)
@@ -223,8 +200,6 @@ public class SmartAligner : IAligner
                 }
             }
         }
-
-        Log($"DP Goal Reached. Cost: {dp[n, bestEndIndex]}. End Index: {bestEndIndex} / {m - 1}");
 
         var chosenIndices = new int[n + 1];
         chosenIndices[n] = bestEndIndex;

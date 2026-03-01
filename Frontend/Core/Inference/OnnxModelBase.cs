@@ -8,6 +8,8 @@ public abstract class OnnxModelBase : IDisposable
 {
     protected InferenceSession? _session;
 
+    public bool IsGpuAccelerated { get; private set; } = false;
+
     protected void LoadSession(string modelPath, int gpuDeviceId = 0)
     {
         if (_session != null) return;
@@ -18,18 +20,40 @@ public abstract class OnnxModelBase : IDisposable
         var options = new SessionOptions();
         options.LogSeverityLevel = OrtLoggingLevel.ORT_LOGGING_LEVEL_ERROR;
 
+        bool cudaRequested = false;
         try
         {
             options.AppendExecutionProvider_CUDA(gpuDeviceId);
-            Console.WriteLine($"[OnnxModelBase] Loaded {Path.GetFileName(modelPath)} on CUDA:{gpuDeviceId}");
+            cudaRequested = true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[OnnxModelBase] CUDA failed: {ex.Message}. Falling back to CPU.");
+            Console.WriteLine($"[OnnxModelBase] CUDA EP registration failed: {ex.Message}. Falling back to CPU.");
         }
         options.AppendExecutionProvider_CPU();
 
         _session = new InferenceSession(modelPath, options);
+
+        if (cudaRequested)
+        {
+            // Detect CUDA by checking if the CUDA provider DLL was loaded into the process
+            // after session creation — this is reliable across ORT 1.x versions.
+            foreach (System.Diagnostics.ProcessModule mod in
+                     System.Diagnostics.Process.GetCurrentProcess().Modules)
+            {
+                if (mod.ModuleName != null &&
+                    mod.ModuleName.Contains("onnxruntime_providers_cuda",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    IsGpuAccelerated = true;
+                    break;
+                }
+            }
+
+            Console.WriteLine(IsGpuAccelerated
+                ? $"[OnnxModelBase] Confirmed CUDA execution for {Path.GetFileName(modelPath)}"
+                : $"[OnnxModelBase] CUDA requested but ORT is using CPU for {Path.GetFileName(modelPath)}");
+        }
 
         // Diagnostic: Report which native library is loaded
         Console.WriteLine($"[OnnxModelBase] Session created successfully");
@@ -50,5 +74,6 @@ public abstract class OnnxModelBase : IDisposable
     {
         _session?.Dispose();
         _session = null;
+        IsGpuAccelerated = false;
     }
 }

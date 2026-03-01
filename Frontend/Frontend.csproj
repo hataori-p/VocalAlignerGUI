@@ -5,9 +5,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <!-- Versioning -->
-    <Version>0.1.1-alpha</Version>
-    <FileVersion>0.1.1.0</FileVersion>
-    <AssemblyVersion>0.1.1.0</AssemblyVersion>
+    <Version>0.1.2-alpha</Version>
+    <FileVersion>0.1.2.0</FileVersion>
+    <AssemblyVersion>0.1.2.0</AssemblyVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
@@ -42,6 +42,7 @@
     <Content Include="resources\models\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="..\docs\CONTROLS.md" Link="docs\CONTROLS.md" />
   </ItemGroup>
 
   <ItemGroup>

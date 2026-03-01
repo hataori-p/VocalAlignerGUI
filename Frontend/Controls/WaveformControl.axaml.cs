@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using static Avalonia.Input.Gestures;
 using Frontend.Models;
 using Frontend.Services;
 using Frontend.ViewModels;
@@ -260,19 +261,23 @@ public partial class WaveformControl : UserControl
         
         double timeClicked = Timeline.XToTime(point.X);
 
+        var vm = DataContext as MainWindowViewModel;
+        bool isShift = e.KeyModifiers.HasFlag(KeyModifiers.Shift) || (vm?.IsVirtualShiftActive == true);
+
         if (properties.IsRightButtonPressed)
         {
-            if (DataContext is MainWindowViewModel vm)
+            if (vm != null)
             {
                 // Shift + Right Click = Play to End of File (-1)
                 // Normal Right Click = Play to End of Viewport
-                double endTime = e.KeyModifiers.HasFlag(KeyModifiers.Shift)
+                double endTime = isShift
                     ? -1
                     : (Timeline?.VisibleEndTime ?? -1);
 
                 vm.PlayRange(timeClicked, endTime);
             }
             e.Handled = true;
+            vm?.ConsumeOneShotModifiers();
             return;
         }
 
@@ -284,7 +289,7 @@ public partial class WaveformControl : UserControl
             e.Pointer.Capture(this);
             e.Handled = true;
 
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            if (isShift)
             {
                 _selectionStartAnchor = timeClicked;
                 Timeline.SetSelection(timeClicked, timeClicked);
@@ -305,7 +310,10 @@ public partial class WaveformControl : UserControl
         double currentX = e.GetPosition(this).X;
         double currentTime = timeline.XToTime(currentX);
 
-        if (e.KeyModifiers.HasFlag(KeyModifiers.Shift) && _selectionStartAnchor >= 0)
+        var vm = DataContext as MainWindowViewModel;
+        bool isShift = e.KeyModifiers.HasFlag(KeyModifiers.Shift) || (vm?.IsVirtualShiftActive == true);
+
+        if (isShift && _selectionStartAnchor >= 0)
         {
             timeline.SetSelection(_selectionStartAnchor, currentTime);
             e.Handled = true;
@@ -348,21 +356,26 @@ public partial class WaveformControl : UserControl
             if (Timeline != null) Timeline.IsInteracting = false;
             e.Pointer.Capture(null);
 
+            var vm = DataContext as MainWindowViewModel;
+            bool isShift = e.KeyModifiers.HasFlag(KeyModifiers.Shift) || (vm?.IsVirtualShiftActive == true);
+
             // Check if this was a Click (Seek) or a Drag (Pan)
             double currentX = e.GetPosition(this).X;
 
-            if (Math.Abs(currentX - _clickStartX) < 3.0 && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            if (Math.Abs(currentX - _clickStartX) < 3.0 && !isShift)
             {
                 double time = Timeline?.XToTime(currentX) ?? 0;
 
                 // Clear selection now that we know it's a valid single-click release.
                 Timeline?.ClearSelection();
 
-                if (DataContext is MainWindowViewModel vm)
+                if (vm != null)
                 {
                     vm.SeekToCommand.Execute(time);
                 }
             }
+
+            vm?.ConsumeOneShotModifiers();
 
             e.Handled = true;
             InvalidateVisual(); // FORCE REPAINT

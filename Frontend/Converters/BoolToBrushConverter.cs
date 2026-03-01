@@ -7,8 +7,8 @@ namespace Frontend.Converters;
 
 public class BoolToBrushConverter : IValueConverter
 {
-    public IBrush TrueBrush { get; set; } = Brushes.LimeGreen;
-    public IBrush FalseBrush { get; set; } = Brushes.Red;
+    public IBrush TrueBrush { get; set; } = Brushes.Green;
+    public IBrush FalseBrush { get; set; } = Brushes.Gray;
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

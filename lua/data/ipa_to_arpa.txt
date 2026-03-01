@@ -1,0 +1,57 @@
+# IPA to ARPABET mapping for en_ipa_to_arpa.lua
+# Format: ipa_symbol = ARPABET
+# (First mapping wins; stress digits optional)
+
+# Vowels
+ɑ=AA
+ɒ=AA
+æ=AE
+ʌ=AH
+ə=AX
+ɔ=AO
+aʊ=AW
+aɪ=AY
+ɛ=EH
+ɝ=ER
+ɚ=ER
+eɪ=EY
+ɪ=IH
+i=IY
+oʊ=OW
+ɔɪ=OY
+ʊ=UH
+u=UW
+
+# Consonants
+b=B
+tʃ=CH
+d=D
+ð=DH
+f=F
+ɡ=G
+h=HH
+dʒ=JH
+k=K
+l=L
+m=M
+n=N
+ŋ=NG
+p=P
+ɹ=R
+r=R
+s=S
+ʃ=SH
+t=T
+ɾ=T
+θ=TH
+v=V
+w=W
+j=Y
+z=Z
+ʒ=ZH
+
+# Silence/ pauses
+_=_  
+sil=_  
+sp=_  
+pau=_

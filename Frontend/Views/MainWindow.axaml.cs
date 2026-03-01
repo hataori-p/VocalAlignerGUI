@@ -195,6 +195,9 @@ public partial class MainWindow : Window
                 state.WindowWidth  = Width;
                 state.WindowHeight = Height;
             }
+            state.IsOskVisible = vm.IsOskVisible;
+            state.OskX = vm.OskX;
+            state.OskY = vm.OskY;
             vm.SaveTimelineState();
 
             vm.IsDirty = false;
@@ -212,6 +215,9 @@ public partial class MainWindow : Window
             stateClean.WindowWidth  = Width;
             stateClean.WindowHeight = Height;
         }
+        stateClean.IsOskVisible = vm?.IsOskVisible ?? false;
+        stateClean.OskX = vm?.OskX ?? 0;
+        stateClean.OskY = vm?.OskY ?? 0;
         vm?.SaveTimelineState();
 
         base.OnClosing(e);

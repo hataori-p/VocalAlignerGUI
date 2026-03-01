@@ -33,6 +33,7 @@
         <KeyBinding Command="{Binding InsertSilenceToSelectionCommand}" Gesture="Ctrl+Shift+I"/>
     </Window.KeyBindings>
 
+    <Panel>
     <DockPanel>
         <!-- Main Menu -->
         <Menu DockPanel.Dock="Top">
@@ -60,6 +61,13 @@
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Zoom to Selection / Reset" Command="{Binding ZoomToSelectionCommand}" HotKey="Z"/>
+                <Separator/>
+                <MenuItem Header="Show On-Screen Keyboard"
+                          Command="{Binding ToggleOskCommand}">
+                    <MenuItem.Icon>
+                        <CheckBox IsChecked="{Binding IsOskVisible, Mode=OneWay}" IsHitTestVisible="False" Focusable="False"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="_Tools">
                 <MenuItem Header="Convert Selection to IPA"
@@ -80,6 +88,9 @@
                 <MenuItem Header="Validate Grid Phonemes" Command="{Binding ValidateGridCommand}" />
             </MenuItem>
             <MenuItem Header="_Help">
+                <MenuItem Header="Show Controls" Command="{Binding ShowControlsCommand}"/>
+                <MenuItem Header="Support Chat Assistant" Command="{Binding OpenSupportChatCommand}"/>
+                <Separator/>
                 <MenuItem Header="Toggle File Logging"
                           Command="{Binding ToggleFileLoggingCommand}">
                     <MenuItem.Icon>
@@ -170,12 +181,49 @@
                                   Margin="0,0,10,0"
                                   IsVisible="{Binding IsSearchVisible}"/>
 
+            <!-- Controls Overlay -->
+            <Border Grid.Row="0" Grid.RowSpan="6"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Background="White" BorderBrush="Gray" BorderThickness="1"
+                    Padding="5"
+                    IsVisible="{Binding ShowControlsPanel}"
+                    Width="700" Height="600"
+                    ZIndex="100">
+                <controls:ControlsHelpPanel />
+            </Border>
+
             <!-- Row 5: Footer -->
-            <Grid Grid.Row="5" ColumnDefinitions="*" Margin="0,5,0,0">
-                <TextBlock Text="{Binding Timeline.TotalDuration, StringFormat='Total Duration: {0:F2}s'}"
+            <Grid Grid.Row="5" ColumnDefinitions="Auto,*,Auto" Margin="0,5,0,0">
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Spacing="4"
+                            ToolTip.Tip="{Binding GpuStatusTooltip}">
+                    <Ellipse Width="9" Height="9"
+                             VerticalAlignment="Center"
+                             Fill="{Binding IsGpuAccelerated,
+                                    Converter={StaticResource GpuStatusBrushConverter}}"/>
+                    <TextBlock Text="GPU"
+                               FontSize="11"
+                               VerticalAlignment="Center"
+                               Foreground="{Binding IsGpuAccelerated,
+                                            Converter={StaticResource GpuStatusBrushConverter}}"/>
+                </StackPanel>
+                <TextBlock Grid.Column="2"
+                           Text="{Binding Timeline.TotalDuration, StringFormat='Total Duration: {0:F2}s'}"
                            HorizontalAlignment="Right"/>
             </Grid>
+
         </Grid>
     </DockPanel>
+
+    <Canvas IsHitTestVisible="{Binding IsOskVisible}"
+            IsVisible="{Binding IsOskVisible}">
+        <controls:TouchKeyboardOverlay
+            Canvas.Left="{Binding OskX}"
+            Canvas.Top="{Binding OskY}"
+            ZIndex="200"/>
+    </Canvas>
+    </Panel>
 
 </Window>

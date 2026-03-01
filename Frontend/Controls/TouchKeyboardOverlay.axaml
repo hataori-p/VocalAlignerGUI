@@ -1,0 +1,81 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Frontend.ViewModels"
+             x:Class="Frontend.Controls.TouchKeyboardOverlay"
+             x:DataType="vm:MainWindowViewModel">
+    
+    <UserControl.Styles>
+        <Style Selector="Button">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Focusable" Value="False"/>
+        </Style>
+        <Style Selector="Button.Modifier[Tag=Inactive] /template/ ContentPresenter">
+            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style Selector="Button.Modifier[Tag=Inactive]:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#D0D0D0"/>
+        </Style>
+        
+        <Style Selector="Button.Modifier[Tag=OneShot] /template/ ContentPresenter">
+            <Setter Property="Background" Value="#3399FF"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.Modifier[Tag=OneShot]:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#55AAFF"/>
+        </Style>
+        
+        <Style Selector="Button.Modifier[Tag=Locked] /template/ ContentPresenter">
+            <Setter Property="Background" Value="#FF4444"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.Modifier[Tag=Locked]:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#FF6666"/>
+        </Style>
+    </UserControl.Styles>
+
+    <!-- The root border handles dragging via code-behind -->
+    <Border x:Name="DragBorder" 
+            Background="#EEF5F5F5" 
+            CornerRadius="10" 
+            Padding="10" 
+            BorderBrush="DarkGray"
+            BorderThickness="1"
+            BoxShadow="0 4 15 0 #40000000"
+            Width="400">
+        <StackPanel Spacing="5">
+            <!-- Grab Handle UI -->
+            <Border Height="8" Width="40" Background="LightGray" CornerRadius="4" HorizontalAlignment="Center" Margin="0,0,0,5" IsHitTestVisible="False"/>
+            
+            <!-- ROW 1: Modifiers -->
+            <UniformGrid Columns="3">
+                <Button Classes="Modifier" Content="Ctrl" Tag="{Binding VirtualCtrl}" Command="{Binding CycleModifierCommand}" CommandParameter="ctrl"/>
+                <Button Classes="Modifier" Content="Alt" Tag="{Binding VirtualAlt}" Command="{Binding CycleModifierCommand}" CommandParameter="alt"/>
+                <Button Classes="Modifier" Content="Shift" Tag="{Binding VirtualShift}" Command="{Binding CycleModifierCommand}" CommandParameter="shift"/>
+            </UniformGrid>
+
+            <!-- ROW 2: Transport -->
+            <UniformGrid Columns="4">
+                <Button Content="Play / Stop" Command="{Binding TogglePlaybackCommand}"/>
+                <Button Content="Play Vis" Command="{Binding PlayVisibleCommand}"/>
+                <Button Content="Play End" Command="{Binding PlayToEndOfViewCommand}"/>
+                <Button Content="Play Int" Command="{Binding PlayIntervalAtPlayheadCommand}" Background="#D1C4E9"/>
+            </UniformGrid>
+
+            <!-- ROW 3: Actions -->
+            <UniformGrid Columns="4">
+                <Button Content="Z (Sel)" Command="{Binding ZoomToSelectionCommand}"/>
+                <Button Content="C (Ctr)" Command="{Binding CenterCursorCommand}"/>
+                <Button Content="Esc" Command="{Binding StopOrClearCommand}" ToolTip.Tip="Stop Playback / Clear Selection"/>
+                <Button Content="Del" Command="{Binding DeleteBoundaryAtPlayheadCommand}" Foreground="Red" ToolTip.Tip="Delete boundary at playhead"/>
+            </UniformGrid>
+        </StackPanel>
+    </Border>
+</UserControl>

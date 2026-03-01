@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Frontend.ViewModels"
+             x:Class="Frontend.Controls.ControlsHelpPanel"
+             x:DataType="vm:MainWindowViewModel">
+    <Grid RowDefinitions="*,Auto" Margin="10">
+        <ScrollViewer Grid.Row="0" Margin="0,0,0,10">
+            <SelectableTextBlock x:Name="MarkdownText"
+                                 TextWrapping="Wrap"
+                                 FontFamily="Segoe UI, San Francisco, Helvetica, Arial"
+                                 FontSize="13"
+                                 LineHeight="20"/>
+        </ScrollViewer>
+        
+        <Button Grid.Row="1" 
+                Content="Close" 
+                Command="{Binding CloseControlsCommand}"
+                HorizontalAlignment="Right"
+                Width="75"/>
+    </Grid>
+</UserControl>

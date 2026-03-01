@@ -6,6 +6,7 @@ using Frontend.Services.Logging;
 using Frontend.Services.Alignment;
 using Frontend.Services.Scripting;
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,12 +20,128 @@ using System.Threading.Tasks;
 
 namespace Frontend.ViewModels;
 
+public enum ModifierState { Inactive, OneShot, Locked }
+
 public partial class MainWindowViewModel : ViewModelBase
 {
     public AudioPlayerService AudioPlayer { get; }
 
     [ObservableProperty]
     private string _statusMessage = "Ready";
+
+    // --- Touch Keyboard States ---
+    [ObservableProperty] private bool _isOskVisible;
+    [ObservableProperty] private double _oskX;
+    [ObservableProperty] private double _oskY;
+    [ObservableProperty] private ModifierState _virtualCtrl = ModifierState.Inactive;
+    [ObservableProperty] private ModifierState _virtualAlt = ModifierState.Inactive;
+    [ObservableProperty] private ModifierState _virtualShift = ModifierState.Inactive;
+
+    public bool IsVirtualCtrlActive => VirtualCtrl != ModifierState.Inactive;
+    public bool IsVirtualAltActive => VirtualAlt != ModifierState.Inactive;
+    public bool IsVirtualShiftActive => VirtualShift != ModifierState.Inactive;
+
+    [RelayCommand]
+    public void ToggleOsk()
+    {
+        IsOskVisible = !IsOskVisible;
+    }
+
+    [RelayCommand]
+    public void CycleModifier(string modifierName)
+    {
+        switch (modifierName.ToLower())
+        {
+            case "ctrl": VirtualCtrl = (ModifierState)(((int)VirtualCtrl + 1) % 3); break;
+            case "alt": VirtualAlt = (ModifierState)(((int)VirtualAlt + 1) % 3); break;
+            case "shift": VirtualShift = (ModifierState)(((int)VirtualShift + 1) % 3); break;
+        }
+    }
+
+    public void ConsumeOneShotModifiers()
+    {
+        if (VirtualCtrl == ModifierState.OneShot) VirtualCtrl = ModifierState.Inactive;
+        if (VirtualAlt == ModifierState.OneShot) VirtualAlt = ModifierState.Inactive;
+        if (VirtualShift == ModifierState.OneShot) VirtualShift = ModifierState.Inactive;
+    }
+
+    [RelayCommand]
+    public void DeleteBoundaryAtPlayhead()
+    {
+        if (MainTier == null) return;
+        double time = Timeline.PlaybackPosition;
+        
+        // Find boundary within 5ms tolerance
+        var target = MainTier.Boundaries.FirstOrDefault(b => Math.Abs(b.Time - time) < 0.005);
+        
+        // Don't delete absolute start/end boundaries
+        if (target != null && target.Time > 0.001 && 
+            (Timeline.TotalDuration <= 0 || Math.Abs(target.Time - Timeline.TotalDuration) > 0.01))
+        {
+            if (MainTier.DeleteBoundary(target))
+            {
+                IsDirty = true;
+                StatusMessage = "Boundary deleted.";
+                ValidateGrid();
+            }
+        }
+        ConsumeOneShotModifiers();
+    }
+
+    [RelayCommand]
+    public void PlayIntervalAtPlayhead()
+    {
+        if (AudioPlayer.IsPlaying)
+        {
+            AudioPlayer.Stop();
+            Timeline.PlaybackPosition = _startPlaybackTime;
+            ConsumeOneShotModifiers();
+            return;
+        }
+
+        if (MainTier == null) return;
+        double time = Timeline.PlaybackPosition;
+        if (time < 0) time = 0;
+
+        var interval = MainTier.Intervals.FirstOrDefault(i => i.Start.Time <= time && i.End.Time > time);
+        if (interval != null)
+        {
+            PlayRange(interval.Start.Time, interval.End.Time);
+        }
+        ConsumeOneShotModifiers();
+    }
+
+    [RelayCommand]
+    public void PlayToEndOfView()
+    {
+        if (AudioPlayer.IsPlaying)
+        {
+            AudioPlayer.Stop();
+            Timeline.PlaybackPosition = _startPlaybackTime;
+            ConsumeOneShotModifiers();
+            return;
+        }
+
+        double start = Timeline.PlaybackPosition;
+        
+        // If playhead is outside the visible view, snap it to the start of the view first
+        if (start < Timeline.VisibleStartTime || start > Timeline.VisibleEndTime || start < 0)
+        {
+            start = Timeline.VisibleStartTime;
+            Timeline.PlaybackPosition = start;
+        }
+        
+        double end = Timeline.VisibleEndTime;
+        if (end <= start) return;
+        
+        PlayRange(start, end);
+        ConsumeOneShotModifiers();
+    }
+
+    [ObservableProperty]
+    private bool _showControlsPanel;
+
+    public string ControlsMarkdown { get; private set; } = string.Empty;
 
     private NativeAlignmentService _nativeAligner = new();
     private readonly PhonemizerScriptingService _phonemizerService = new();
@@ -35,6 +152,18 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly string _appVersion;
 
     public bool IsServerConnected => _nativeAligner.IsAvailable;
+
+    [ObservableProperty]
+    private bool _isGpuAccelerated;
+
+    public string GpuStatusTooltip => IsGpuAccelerated
+        ? "GPU Acceleration Active (CUDA)"
+        : "Running on CPU — inference will be slower";
+
+    partial void OnIsGpuAcceleratedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(GpuStatusTooltip));
+    }
 
     public bool IsModelLoaded => SelectedModel != null && IsServerConnected;
 
@@ -111,7 +240,6 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _fileLoggingPath = string.Empty;
 
-    private const string FallbackAudioPath = @"C:\Projekty\VocalAlignerGUI\data\test_audio.wav";
 
     public MainWindowViewModel()
     {
@@ -130,6 +258,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
+                IsGpuAccelerated = _nativeAligner.IsGpuAccelerated;
                 OnPropertyChanged(nameof(IsServerConnected));
                 OnPropertyChanged(nameof(HasOnnxModel));
                 OnPropertyChanged(nameof(IsManualMode));
@@ -159,6 +288,12 @@ public partial class MainWindowViewModel : ViewModelBase
         };
 
         SubscribeToGrid(_mainTier);
+
+        // Load markdown from embedded resource
+        ControlsMarkdown = LoadEmbeddedResource<string>("Frontend.docs.CONTROLS.md") 
+            ?? LoadEmbeddedResource<string>("Frontend.CONTROLS.md")
+            ?? "# Controls Reference Guide\n\nThe controls file was not found.";
+
         _ = InitializeAsync();
     }
 
@@ -167,12 +302,14 @@ public partial class MainWindowViewModel : ViewModelBase
         // AppState already loaded synchronously in MainWindow constructor
         await InitializePhonemizerServiceAsync();
 
-        // Restore last audio
-        string? audioToLoad = AppStateService.Current.LastAudioPath;
-        if (string.IsNullOrEmpty(audioToLoad) || !File.Exists(audioToLoad))
-            audioToLoad = File.Exists(FallbackAudioPath) ? FallbackAudioPath : null;
+        // Restore OSK State
+        IsOskVisible = AppStateService.Current.IsOskVisible;
+        OskX = AppStateService.Current.OskX;
+        OskY = AppStateService.Current.OskY;
 
-        if (audioToLoad != null)
+        // Restore last audio — only if a valid path was saved and the file still exists
+        string? audioToLoad = AppStateService.Current.LastAudioPath;
+        if (!string.IsNullOrEmpty(audioToLoad) && File.Exists(audioToLoad))
             await LoadAudio(audioToLoad);
 
         // Restore last TextGrid independently (may differ from audio sibling)
@@ -304,7 +441,12 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            string finalPath = path ?? FallbackAudioPath;
+            if (path == null)
+            {
+                StatusMessage = "No audio path provided.";
+                return;
+            }
+            string finalPath = path;
             _currentAudioPath = finalPath;
 
             if (!File.Exists(finalPath))
@@ -1095,12 +1237,14 @@ public partial class MainWindowViewModel : ViewModelBase
                 
                 // 2. Clear the selection (Requested Feature)
                 Timeline.ClearSelection();
+                ConsumeOneShotModifiers();
                 return;
             }
         }
 
         // Mode 2: Reset Zoom (Zoom All)
         Timeline.SetView(0, Timeline.TotalDuration);
+        ConsumeOneShotModifiers();
     }
 
     [RelayCommand]
@@ -1166,17 +1310,27 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Timeline.PlaybackPosition < 0) return;
 
         Timeline.CenterOn(Timeline.PlaybackPosition);
+        ConsumeOneShotModifiers();
     }
 
     [RelayCommand]
     private void PlayVisible()
     {
+        if (AudioPlayer.IsPlaying)
+        {
+            AudioPlayer.Stop();
+            Timeline.PlaybackPosition = _startPlaybackTime;
+            ConsumeOneShotModifiers();
+            return;
+        }
+
         double start = Timeline.VisibleStartTime;
         double end = Timeline.VisibleEndTime;
 
         if (end <= start) return;
 
         AudioPlayer.Play(start, end);
+        ConsumeOneShotModifiers();
     }
 
     [RelayCommand]
@@ -1255,6 +1409,35 @@ public partial class MainWindowViewModel : ViewModelBase
             IsFileLoggingActive = true;
             FileLoggingPath = logPath;
             StatusMessage = $"Logging to: {Path.GetFileName(logPath)}";
+        }
+    }
+
+    [RelayCommand]
+    private void ShowControls()
+    {
+        ShowControlsPanel = true;
+    }
+
+    [RelayCommand]
+    private void CloseControls()
+    {
+        ShowControlsPanel = false;
+    }
+
+    [RelayCommand]
+    private void OpenSupportChat()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://hataori-p.github.io/vocal-aligner-chat/",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Failed to open browser: {ex.Message}";
         }
     }
 
@@ -2161,6 +2344,29 @@ public partial class MainWindowViewModel : ViewModelBase
         var currentGrid = MainTier;
         MainTier = null;
         MainTier = currentGrid;
+    }
+
+    private T? LoadEmbeddedResource<T>(string resourceName)
+    {
+        var assembly = typeof(MainWindowViewModel).Assembly;
+        
+        // Debug: Log available resources if one is missing
+        var names = assembly.GetManifestResourceNames();
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        
+        if (stream == null) 
+        {
+            System.Diagnostics.Debug.WriteLine($"Resource not found: {resourceName}");
+            System.Diagnostics.Debug.WriteLine("Available resources: " + string.Join(", ", names));
+            return default;
+        }
+
+        if (typeof(T) == typeof(string))
+        {
+            using var reader = new StreamReader(stream);
+            return (T?)(object)reader.ReadToEnd();
+        }
+        return default;
     }
 
     private void LoadEmptyGrid(double duration, bool preserveCurrentPath = false)

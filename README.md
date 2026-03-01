@@ -1,4 +1,4 @@
-# VocalAlignerGUI (v0.1.1-alpha)
+# VocalAlignerGUI (v0.1.2-alpha)
 
 A standalone forced alignment tool and TextGrid editor. It is designed specifically to help create and refine phonetic datasets for Singing Voice Synthesis (SVS) and neural vocoders. 
 
@@ -35,9 +35,9 @@ VocalAlignerGUI includes a programmable scripting engine (via MoonSharp) that al
 ## Installation & Setup
 
 ### For Users (Release Version)
-1. Download the latest `v0.1.1-alpha` release: [`VocalAligner_v0.1.1-alpha_Windows.zip`](https://github.com/hataori-p/VocalAlignerGUI/releases/download/v0.1.1-alpha/VocalAligner_v0.1.1-alpha_Windows.zip).
+1. Download the latest `v0.1.2-alpha` release: [`VocalAligner_v0.1.2-alpha_Windows.zip`](https://github.com/hataori-p/VocalAlignerGUI/releases/download/v0.1.2-alpha/VocalAligner_v0.1.2-alpha_Windows.zip).
 2. Extract the folder to your desired location.
-3. Ensure the required acoustic models (`.onnx` and `.yaml` files) are placed in the `resources/models/` directory.
+3. Ensure the required acoustic models (`.onnx` and `.yaml` files) are placed in the `Frontend/resources/models/` directory.
 4. Run the `VocalAlignerGUI` executable.
 
 ### For Developers (Building from Source)
@@ -58,7 +58,7 @@ dotnet run --project Frontend/Frontend.csproj
 
 ## Notes for Alpha Testers
 
-This is a **v0.1.1-alpha** release aimed at a niche group of dataset creators. You will likely encounter bugs, missing quality-of-life features, or UI quirks. 
+This is a **v0.1.2-alpha** release aimed at a niche group of dataset creators. You will likely encounter bugs, missing quality-of-life features, or UI quirks. 
 
 If you run into issues, please open an issue on GitHub. To help speed up fixes, please include:
 * A brief description of what you were doing.

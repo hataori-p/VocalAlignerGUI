@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Frontend.App"
              xmlns:local="using:Frontend"
+             xmlns:converters="using:Frontend.Converters"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -9,6 +10,14 @@
         <local:ViewLocator/>
     </Application.DataTemplates>
   
+    <Application.Resources>
+        <ResourceDictionary>
+            <converters:BoolToBrushConverter x:Key="GpuStatusBrushConverter"
+                                             TrueBrush="#4CAF50"
+                                             FalseBrush="#9E9E9E"/>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>

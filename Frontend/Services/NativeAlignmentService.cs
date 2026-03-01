@@ -39,6 +39,10 @@ public class NativeAlignmentService
 
     public bool IsAvailable => _engine != null;
 
+    public bool IsGpuAccelerated =>
+        (_engine?.IsGpuAccelerated ?? false) ||
+        (_refiner?.IsGpuAccelerated ?? false);
+
     public Action? OnAvailabilityChanged { get; set; }
 
     /// <summary>

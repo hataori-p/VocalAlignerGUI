@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using static Avalonia.Input.Gestures;
 using Frontend.Models;
 using Frontend.Services;
 using System;
